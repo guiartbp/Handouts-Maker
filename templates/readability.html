@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block container %}
+    <form action="/readability" method="POST">
+        <div class="form-group">
+            <label for="exampleFormControlTextarea1">Example textarea</label>
+            <textarea class="form-control" name="text" rows="3" placeholder="Enter text"></textarea>
+          </div>
+        <button class="btn btn-primary" type="submit">Grade</button>
+    </form>
+    <p>
+        {{ text }}
+    </p>
+    <h3> 
+        {{ grade }}
+    </h3>
+{% endblock %}

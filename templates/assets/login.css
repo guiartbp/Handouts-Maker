@@ -1,0 +1,7 @@
+.flex{
+  display: flex;
+}
+.form-group{
+  width: 100%;
+  max-width: 0px;
+}
