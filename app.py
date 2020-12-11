@@ -1,5 +1,5 @@
 import string
-from flask import Flask, request, render_template, session, redirect, flash
+from flask import Flask, request, render_template, session, redirect
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
@@ -27,7 +27,8 @@ user_table = Table('users', metadata,
                    Column('handouts', Integer))    
 
 handout_table = Table('handouts', metadata,
-                   Column('id', Integer, primary_key=True, autoincrement=True),                   
+                   Column('id', Integer, primary_key=True, autoincrement=True),  
+                   Column('user_id', Integer),     
                    Column('handout_name', String(30), index=True, nullable=False),     
                    Column('language', String(30), index=True, nullable=False),                   
                    Column('level', Integer, nullable=False),
@@ -52,6 +53,9 @@ vocabulary_table = Table('vocabularies', metadata,
                    Column('translate', String(46)))    
 
 
+@app.route("/")
+def index():
+    return redirect("/myhandout")
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -138,19 +142,40 @@ def create_handout():
         language = request.form.get("language")        
         desc_csv = request.form.get("desc_csv")        
         with engine.connect() as conn:
-            conn.execute("INSERT INTO handouts(handout_name, language, level, desc_csv) VALUES(:handout_name, :language, :level, :desc_csv)",
-                                                handout_name=handout_name, language=language, level=level, desc_csv=desc_csv)
-            select = conn.execute("SELECT handouts FROM users WHERE id = :user_id",
-                                    user_id=session["user_id"])
-        flash(select)
-        return 'hello world'
+            conn.execute("INSERT INTO handouts(user_id, handout_name, language, level, desc_csv) VALUES(?, ?, ?, ?, ?)",
+                                                (session['user_id'], handout_name, language, level, desc_csv))
+            select_handouts = conn.execute("SELECT handouts FROM users WHERE id = ?", (session['user_id'],)).fetchall()
+            handouts_qtd = int(select_handouts[0][0])
+            handouts_qtd += 1
+            update_handouts = conn.execute("UPDATE users SET handouts = ? WHERE id = ?", (handouts_qtd, session['user_id'],))
+           
+        return redirect("/myhandout")
          
     return render_template("new_handout.html")  
     
 @app.route("/myhandout")
 @login_required
 def myhandout():
-    return render_template("myhandout.html")
+    names = []
+    languages = []
+    levels = []
+    desc_csv = []
+    with engine.connect() as conn:
+        db_handout = conn.execute("SELECT * FROM handouts").fetchall()
+        count_handout = conn.execute("SELECT COUNT(*) as count FROM handouts").fetchall()
+        count = count_handout[0]['count']
+        for i in range(count): 
+            data_name = db_handout[i]['handout_name']
+            data_language = db_handout[i]['language']
+            data_level = db_handout[i]['level']
+            data_desc = db_handout[i]['desc_csv']
+            names.append(data_name)
+            languages.append(data_language)
+            levels.append(data_level)
+            desc_csv.append(data_desc)
+
+        
+    return render_template("myhandout.html", count=count, name=names, language=languages, level=levels, desc=desc_csv)
 
 @app.route("/readability", methods=["GET", "POST"])
 def readability():

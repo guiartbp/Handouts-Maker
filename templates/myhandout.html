@@ -2,66 +2,31 @@
 
 
 {% block container %}
-{% if get_flashed_messages() %}
-<header>
-    <div class="alert alert-primary border text-center" role="alert">
-        {{ get_flashed_messages() | join(" ") }}
-    </div>
-</header>
-{% endif %}
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">My Handouts</h1>
-    <p class="lead">All your handouts are here. Divided by language and difficulty. Click on "Go to Handout" in the book you want to view or edit the lessons and generate pdf</p>
-</div>
+<h1>{{ select }}</h1>
+
 <div class="container">    
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">My Handouts</h1>
+        <p class="lead">All your handouts are here. Divided by language and difficulty. Click on "Go to Handout" in the book you want to view or edit the lessons and generate pdf</p>
+    </div>
+
+    
     <div class="card-deck mb-3 text-center">
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header">
-            <h4 class="my-0 font-weight-normal">Handout #3</h4>
+        {% for i in range(count) %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                <h4 class="my-0 font-weight-normal">{{ name[i] }}</h4>
+                </div>
+                <div class="card-body">
+                <h1 class="card-title pricing-card-title">{{ language[i] }} <small class="text-muted">/ {{ level[i] }}</small></h1>
+                <ul class="list-unstyled mt-3 mb-4">
+                    <li>{{ desc[i] }}</li>
+                </ul>
+                <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go to Handout</button>
+                </div>
             </div>
-            <div class="card-body">
-            <h1 class="card-title pricing-card-title">English <small class="text-muted">/ 1</small></h1>
-            <ul class="list-unstyled mt-3 mb-4">
-                <li>Syntax</li>
-                <li>Exercise</li>
-                <li>Vocabulary</li>
-                <li>Morphology</li>
-            </ul>
-            <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go to Handout</button>
-            </div>
-        </div>
-
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header">
-            <h4 class="my-0 font-weight-normal">Handout #2</h4>
-            </div>
-            <div class="card-body">
-            <h1 class="card-title pricing-card-title">Português <small class="text-muted">/ 1</small></h1>
-            <ul class="list-unstyled mt-3 mb-4">
-                <li>Sintaxe</li>
-                <li>Exercicio</li>
-                <li>Vocabulário</li>
-                <li>Morphologia</li>
-            </ul>
-            <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go to Handout</button>
-            </div>
-        </div>
-
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header">
-            <h4 class="my-0 font-weight-normal">Handout #1</h4>
-            </div>
-            <div class="card-body">
-            <h1 class="card-title pricing-card-title">Español <small class="text-muted">/ 1</small></h1>
-            <ul class="list-unstyled mt-3 mb-4">
-                <li>Sintaxis</li>
-                <li>Ejercicio</li>
-                <li>Vocabulario</li>
-                <li>Morfología</li>
-            </ul>
-            <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go to Handout</button>
-            </div>
-        </div>    
+        {% endfor %}
+  
     </div>
 </div>
         
