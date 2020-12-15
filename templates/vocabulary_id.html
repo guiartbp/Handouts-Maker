@@ -17,7 +17,10 @@
                 <tr>
                     <td colspan="1">{{ word[i] }}</td>
                     <td colspan="1">{{ translate[i] }}</td>
-                    <td colspan="1">editar | excluir</td>
+                    <td colspan="1">
+                        <a href="{{ vocabulary_id[i] }}" class="pr-2">Edit</a>  | 
+                        <a href="/vocabulary/delete/{{ vocabulary_id[i] }}" class="pl-2">Delete</a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

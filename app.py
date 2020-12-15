@@ -365,8 +365,6 @@ def edit_lesson(lesson_id):
 @login_required
 def delete_lesson(handout_id, lesson_id):
     with engine.connect() as conn:
-        #db_handoutid = conn.execute("SELECT handout_id FROM handouts WHERE handout_name = ? AND user_id = ?", 
-         #                           (handout_name, session['user_id'],)).fetchall()
         del_lesson = conn.execute('''DELETE FROM lessons WHERE user_id = ? AND lesson_id = ?''',
                                     session['user_id'], lesson_id)
             
@@ -409,12 +407,47 @@ def vocabulary(handout_id):
         try:                        
             get_word = []
             get_translate = []
+            get_id = []
             for i in range(0, size):
                 get_word.append(db_vocabulary[i]['word'])
-                get_translate.append(db_vocabulary[i]['translate'])
+                get_translate.append(db_vocabulary[i]['translate'])                
+                get_id.append(db_vocabulary[i]['vocabulary_id'])
         except: 
             return render_template('vocabulary.html')
-    return render_template('vocabulary_id.html', size=size, word=get_word, translate=get_translate)
+    return render_template('vocabulary_id.html', size=size, word=get_word, translate=get_translate, vocabulary_id=get_id)
+
+@app.route("/vocabulary/<int:handout_id>/<int:vocabulary_id>", methods=['GET', 'POST'])
+@login_required
+def edit_vocabulary(handout_id, vocabulary_id):
+    with engine.connect() as conn:        
+        db_vocabulary = conn.execute('''SELECT * FROM vocabularies JOIN handouts 
+                                        WHERE vocabularies.handout_id = ? AND user_id = ? AND vocabulary_id = ?''', 
+                                        (handout_id, session['user_id'], vocabulary_id)).fetchall()
+        title = db_vocabulary[0]['text']
+        word = db_vocabulary[0]['word']
+
+    if request.method == "POST": 
+        translate = request.form.get("translate") 
+        type_word = request.form.get("type") 
+        gen_word = request.form.get("gen") 
+        with engine.connect() as conn: 
+            db_vocabulary = conn.execute('''UPDATE vocabularies 
+                                            SET translate = ?, type = ?, gen = ? 
+                                            WHERE vocabularies.handout_id = ? AND vocabulary_id = ?''', 
+                                            (translate, type_word, gen_word,
+                                            handout_id, vocabulary_id))
+        return redirect("/vocabulary")
+    return render_template('edit_vocabulary.html', word=word, title=title)
+
+@app.route("/vocabulary/delete/<int:vocabulary_id>")
+@login_required
+def delete_vocabulary(vocabulary_id):
+    with engine.connect() as conn:
+        db_vocabulary = conn.execute('''DELETE FROM vocabularies WHERE word IN 
+                                        (SELECT word FROM vocabularies JOIN handouts 
+                                        WHERE user_id = ? AND vocabulary_id = ?)''', 
+                                        (session['user_id'], vocabulary_id))
+    return redirect("/vocabulary")
 
 @app.route("/readability", methods=["GET", "POST"])
 def readability():

@@ -2,9 +2,30 @@
 
 
 {% block container %}
-<div class="container">
-    <form action="" method="POST">
-
-    </form>
+<div class="container">`
+    <div class="text-center">
+        <h1>{{ title }}</h1>
+        <h3>{{ word }}</h3>
+        <form action="" method="POST">
+            <div class="form-row d-flex justify-content-center">                
+                <div class="form-group col-md-5">
+                    <input class="form-control" type="text" name="translate" placeholder="Translate of {{ word }}" type="text">
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="form-row d-flex justify-content-center">
+                    <div class="form-group col-md-5">
+                        <input class="form-control" type="text" name="type" placeholder="Word type" type="text">
+                    </div>
+                    <div class="form-group col-md-5">
+                        <input class="form-control" type="text" name="gen" placeholder="Word gender" type="text">
+                    </div>
+                </div>                
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Edit</button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

@@ -26,8 +26,8 @@
                     <td colspan="1">{{ handout_name[i] }}</td>
                     <td colspan="1"> 
                         <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                            <a href="/edit/lesson/{{ lesson_id[i] }}"><button type="button" class="btn btn-secondary">Editar</button></a>
-                            <a href="/delete/lesson/{{ handout_id }}/{{ lesson_id[i] }}"><button type="button" class="btn btn-secondary">Excluir</button></a>
+                            <a href="/edit/lesson/{{ lesson_id[i] }}" class="pr-2">Edit</a> |
+                            <a href="/delete/lesson/{{ handout_id }}/{{ lesson_id[i] }}" class="pl-2"> Delete</a>
                         </div>
                     </td>
                 </tr>
