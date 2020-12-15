@@ -9,25 +9,43 @@
         <h1 class="display-4">My Handouts</h1>
         <p class="lead">All your handouts are here. Divided by language and difficulty. Click on "Go to Handout" in the book you want to view or edit the lessons and generate pdf</p>
     </div>
-
-    
-    <div class="card-deck mb-3 text-center">
-        {% for i in range(count) %}
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header">
-                <h4 class="my-0 font-weight-normal">{{ name[i] }}</h4>
+    {% for n in range(count) %}
+        {% if n == 0 or n % 3 == 0 %}
+        <div class="card-deck mb-3 text-center">
+            {% for i in range(n, n + 3) %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h4 class="my-0 font-weight-normal">
+                            {% if name[i] %}
+                                {{ name[i] }}
+                            {% else %}
+                                <a href="newhandout">Create New</a>
+                            {% endif %}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <h1 class="card-title pricing-card-title">
+                            {% if language[i]  %}
+                                {{ language[i] }} 
+                            {% else %}
+                                <a href="/newhandout">New Handout</a>
+                            {% endif %}
+                            
+                            <small class="text-muted">/ {{ level[i] }}</small></h1>
+                        <ul class="list-unstyled mt-3 mb-4">
+                            <li>{{ desc[i] }}</li>
+                        </ul>
+                            {% if handout_id[i]  %}
+                                <a href="handout/{{ handout_id[i]  }}/"><button type="button" class="btn btn-lg btn-block btn-outline-primary">Go to Handout</button></a>
+                            {% else %}
+                                <a href="/newhandout"><button type="button" class="btn btn-lg btn-block btn-outline-primary">New Handout</button></a>
+                            {% endif %}
+                    </div>
                 </div>
-                <div class="card-body">
-                <h1 class="card-title pricing-card-title">{{ language[i] }} <small class="text-muted">/ {{ level[i] }}</small></h1>
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li>{{ desc[i] }}</li>
-                </ul>
-                <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go to Handout</button>
-                </div>
-            </div>
-        {% endfor %}
-  
-    </div>
+            {% endfor %}  
+        </div>
+        {% endif %}  
+    {% endfor %}  
 </div>
         
     {% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+
+{% block container %}
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Word</th>
+                <th scope="col">Translate</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        {% if size > 0 %}
+        <tbody>
+            {% for i in range(size) %}
+                <tr>
+                    <td colspan="1">{{ word[i] }}</td>
+                    <td colspan="1">{{ translate[i] }}</td>
+                    <td colspan="1">editar | excluir</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        {% endif %}
+    </table>
+</div>
+{% endblock %}

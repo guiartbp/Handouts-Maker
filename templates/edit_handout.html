@@ -3,22 +3,27 @@
 
 {% block container %}
 <div class="container">
-    <form action="/newhandout" method="POST">
+    <form action="/edit/handout/{{ handout_id }}/" method="POST">
         <div class="form-row">
             <div class="form-group col-md-10">
+                <h3>{{ handout_name }}</h3>
                 <input class="form-control" type="text" name="handout_name" placeholder="Name of Handout" type="text">
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-2">                
+                <h3>{{ handout_level }}</h3>
                 <input class="form-control" name="level" placeholder="Level" type="number" min="1">
             </div>    
         </div>
-        <div class="form-group">
+        <div class="form-group">            
+            <h3>{{ handout_language }}</h3>
             <input type="text" class="form-control" name="language" placeholder="Language">
         </div>
-        <div class="form-group">
+        <div class="form-group">            
+            <h3>{{ handout_desc }}</h3>
             <textarea class="form-control" name="desc_csv" rows="3" style="resize: none;"> Syntax, Exercise, Vocabulary, Morphology</textarea>
         </div>
-        <button class="btn btn-primary" type="submit">New handout</button>  
+        <button class="btn btn-secondary" type="submit">Edit handout</button></a>
+        <a href="/handout/{{ handout_id }}/"><button type="button" class="btn btn-secondary">Cancel</button></a>
     </form>
 </div>
 {% endblock %}

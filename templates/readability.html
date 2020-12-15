@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
-{% block container %}
+{% block container %}`
+<div class="container">
     <form action="/readability" method="POST">
         <div class="form-group">
             <label for="exampleFormControlTextarea1">Example textarea</label>
@@ -14,4 +15,5 @@
     <h3> 
         {{ grade }}
     </h3>
+</div>
 {% endblock %}

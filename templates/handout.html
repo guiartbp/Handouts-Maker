@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+
+{% block container %}
+<div class="container">
+    <div class="text-center">
+        <h1>Handout - {{ title_pag }}</h1>
+    </div>
+    <a href="/edit/handout/{{ handout_id }}/">Edit Handout </a>
+    <!-- LESSONS -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Number</th>
+                <th scope="col">Handout</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        {% if size > 0 %}
+        <tbody>
+            {% for i in range(size) %}
+                <tr>
+                    <td colspan="1">{{ title[i] }}</td>
+                    <td colspan="1">{{ number[i] }}</td>
+                    <td colspan="1">{{ handout_name[i] }}</td>
+                    <td colspan="1"> 
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                            <a href="/edit/lesson/{{ lesson_id[i] }}"><button type="button" class="btn btn-secondary">Editar</button></a>
+                            <a href="/delete/lesson/{{ handout_id }}/{{ lesson_id[i] }}"><button type="button" class="btn btn-secondary">Excluir</button></a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        {% endif %}
+    </table>
+    <!-- VOCABULARY -->
+    <!-- GENERATE PDF -->
+</div>
+{% endblock %}

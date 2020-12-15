@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+
+{% block container %}
+<div class="container">
+    <form action="/newlesson" method="POST">
+        <div class="form-row">
+            <div class="form-group col-md-10">
+                <input required class="form-control" type="title_lesson" name="title_lesson" placeholder="Title of Lesson" type="text">
+            </div>
+            <div class="form-group col-md-2">
+                <input required class="form-control" name="num_lesson" placeholder="Nº of lesson" type="number" min="1">
+            </div>    
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-8">
+                <textarea required maxlength="900" minlength="30"class="form-control" name="main_text" rows="3" style="resize: none;">Main lesson text</textarea>
+            </div>
+            <div class="form-group col-md-4">
+                <select required class="form-control" name="handout_newlesson">
+                    <option  disabled="" selected="" value="">Handout</option>
+    
+                    {% for i in range(0, size) %}
+                        <option value="{{ handout_op[i] }}">{{ handout_op[i] }}</option>
+                    {% endfor %}
+                </select>   
+            </div> 
+        </div>
+        <div class="form-group">
+            <textarea required maxlength="900" minlength="30"class="form-control" name="exercises" rows="3" style="resize: none;">Exercises</textarea>
+        </div>
+        <div class="form-group">
+            <textarea maxlength="900" minlength="30"class="form-control" name="text_two" rows="3" style="resize: none;"> Lesson text 2 (optional)</textarea>
+        </div>
+        <div class="form-group">
+            <textarea minlength="30"class="form-control" name="morphology" rows="3" style="resize: none;">Morphology of lesson</textarea>
+        </div>
+        <div class="form-group">
+            <textarea minlength="30"class="form-control" name="syntax" rows="3" style="resize: none;">Syntax of lesson</textarea>
+        </div>
+        <div class="form-group">
+            <textarea minlength="30"class="form-control" name="tips" rows="3" style="resize: none;"> Tips of lesson</textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">New lesson</button>  
+    </form>
+</div>
+{% endblock %}
