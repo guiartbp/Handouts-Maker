@@ -502,6 +502,8 @@ def generate_pdf(handout_id):
                                 FROM handouts JOIN lessons 
                                 WHERE handouts.user_id = ? AND handouts.handout_id = ?''',
                                 session['user_id'], handout_id).fetchall()
+        handout_name=dados[0]['handout_name']
+        language = dados[0]['language']
         count = db_count[0]['count']
         print(f'count: {count}')
         get_lesson = []
@@ -564,17 +566,60 @@ def generate_pdf(handout_id):
             get_type.append([])
             get_gen.append([])
             get_translate.append([])
+
     for d in range(count):
         # Page of Lesson
         document.add_heading(f"Lesson {get_lesson[d]}", level=1)        
-        document.add_heading(f"Lesson {get_title[d]}", level=2)
-        document.add_paragraph()
-        # Page of Grammar 
+        document.add_heading(get_title[d], level=2)        
+        document.add_paragraph(get_text[d])
 
-    
+        table = document.add_table(rows=1, cols=4)      
+        voc_cells = table.rows[0].cells  
+        voc_cells[0].text = 'Word'
+        voc_cells[1].text = 'Type'
+        voc_cells[2].text = 'Gen'            
+        voc_cells[3].text = 'Translate'
+        for voc_docs in range(get_countvoc[d]):
+            row_cells = table.add_row().cells
+            try: 
+                row_cells[0].text = get_word[d][voc_docs]
+            except:
+                row_cells[0].text = "None"
+            try:                 
+                row_cells[1].text = get_type[d][voc_docs]
+            except:
+                row_cells[1].text = "None"
+            try:                
+                row_cells[2].text = get_gen[d][voc_docs]
+            except:
+                row_cells[2].text = "None"
+            try:                 
+                row_cells[3].text = get_translate[d][voc_docs]
+            except:
+                row_cells[3].text = "None"
+
+               
+        document.add_heading('Exercises', level=2)
+        document.add_paragraph(get_exercise[d])    
+        
+        document.add_page_break()
+
+        # Page of Grammar 
+        if len(get_morphology[d]) != 0:
+            document.add_heading('Morphology', level=2)
+            document.add_paragraph(get_morphology[d])  
+        if len(get_syntax[d]) != 0:
+            document.add_heading('Syntax', level=2)
+            document.add_paragraph(get_syntax[d])   
+        if len(get_tips[d]) != 0:
+            document.add_heading('Tips', level=2)
+            document.add_paragraph(get_tips[d])  
+        
+        document.add_page_break()
+
     document.save(f'{handout_name}.docx')
 
-    return render_template('sucess.html', countvoc=get_countvoc, count_voc=count_voc, count=count, handout_name=dados[0]['handout_name'], language=dados[0]['language'], lesson=get_lesson, title=get_title, text=get_text, word=get_word, type=get_type, gen=get_gen, translate=get_translate, exercise=get_exercise, morphology=get_morphology, syntax=get_syntax, tips=get_tips)
+    return render_template('sucess.html', countvoc=get_countvoc, count_voc=count_voc, count=count, handout_name=handout_name, language=language, lesson=get_lesson, title=get_title, text=get_text, word=get_word, type=get_type, gen=get_gen, translate=get_translate, exercise=get_exercise, morphology=get_morphology, syntax=get_syntax, tips=get_tips)
 
 if __name__ == "__main__":
 
