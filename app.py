@@ -5,6 +5,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, ColumnDefault, ForeignKey, select
+from docx import Document
 
 from helpers import apology, login_required
 
@@ -490,6 +491,90 @@ def readability():
 
     return render_template('readability.html')
 
+@app.route("/pdf/generate/<int:handout_id>")
+@login_required
+def generate_pdf(handout_id):
+    with engine.connect() as conn:
+        db_count =conn.execute('''SELECT COUNT(*) as count FROM handouts JOIN lessons
+                                WHERE handouts.user_id = ? AND handouts.handout_id = ?''',
+                                session['user_id'], handout_id).fetchall()
+        dados = conn.execute('''SELECT handout_name, language, lesson_num, title, text, exercise, morphology, syntax, tips   
+                                FROM handouts JOIN lessons 
+                                WHERE handouts.user_id = ? AND handouts.handout_id = ?''',
+                                session['user_id'], handout_id).fetchall()
+        count = db_count[0]['count']
+        print(f'count: {count}')
+        get_lesson = []
+        get_title = []
+        get_text = []
+        get_exercise = []
+        get_morphology = []
+        get_syntax = []
+        get_tips = []        
+        get_countvoc = []
+        get_word = [[]]
+        get_type = [[]]
+        get_gen = [[]]
+        get_translate = [[]]
+
+        # Open Document 
+        document = Document()
+        # First page
+        doc_title = document.add_heading(handout_name, 0)
+        doc_language = document.add_paragraph(language)
+        document.add_page_break()
+
+        for i in range(count):
+            get_lesson.append(dados[i]['lesson_num'])
+            get_title.append(dados[i]['title'])
+            get_text.append(dados[i]['text'])
+            get_exercise.append(dados[i]['exercise'])
+            get_morphology.append(dados[i]['morphology'])
+            get_syntax.append(dados[i]['syntax'])
+            get_tips.append(dados[i]['tips'])
+            
+            print(f'i:{i}')
+
+            vocabulary_db = conn.execute('''SELECT word, type, gen, translate 
+                                            FROM vocabularies JOIN handouts 
+                                            WHERE handouts.user_id = ? AND handouts.handout_id = ? AND lesson_id = ?
+                                            ORDER BY type''',
+                                            session['user_id'], handout_id, i+1).fetchall()
+            vocabulary_count = conn.execute('''SELECT COUNT(*) as count_voc
+                                                FROM vocabularies JOIN handouts 
+                                                WHERE handouts.user_id = ? AND handouts.handout_id = ? AND lesson_id = ?
+                                                ORDER BY type''',
+                                                session['user_id'], handout_id, i+1).fetchall()
+            get_countvoc.append(vocabulary_count[0]['count_voc'])   
+            count_voc = vocabulary_count[0]['count_voc']
+            print(f"get_countvoc: {get_word}")
+            print(f"vocabulary: {count_voc}")    
+
+            for v in range(count_voc):
+
+                get_word[i].append(vocabulary_db[v]['word'])
+                get_type[i].append(vocabulary_db[v]['type'])
+                get_gen[i].append(vocabulary_db[v]['gen'])
+                get_translate[i].append(vocabulary_db[v]['translate'])
+                print(f'v: {v}')
+                word = vocabulary_db[v]['word']
+                print(f'word: {word}')
+            
+            get_word.append([])
+            get_type.append([])
+            get_gen.append([])
+            get_translate.append([])
+    for d in range(count):
+        # Page of Lesson
+        document.add_heading(f"Lesson {get_lesson[d]}", level=1)        
+        document.add_heading(f"Lesson {get_title[d]}", level=2)
+        document.add_paragraph()
+        # Page of Grammar 
+
+    
+    document.save(f'{handout_name}.docx')
+
+    return render_template('sucess.html', countvoc=get_countvoc, count_voc=count_voc, count=count, handout_name=dados[0]['handout_name'], language=dados[0]['language'], lesson=get_lesson, title=get_title, text=get_text, word=get_word, type=get_type, gen=get_gen, translate=get_translate, exercise=get_exercise, morphology=get_morphology, syntax=get_syntax, tips=get_tips)
 
 if __name__ == "__main__":
 
