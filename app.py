@@ -629,6 +629,9 @@ def generate_pdf(handout_id):
         return redirect(f'/handout/{handout_id}')
     return redirect ('/myhandout')
 
+
 if __name__ == "__main__":
     metadata.create_all()
     app.run(port=8080, host='127.0.0.1', debug=True, threaded=True)
+else: 
+    metadata.create_all()
