@@ -252,7 +252,7 @@ def create_lesson():
         morphology = request.form.get("morphology")
         syntax = request.form.get("syntax")
         tips = request.form.get("tips")
-
+        handout_id = 0
         with engine.connect() as conn:
             db_handoutid = conn.execute("SELECT handout_id FROM handouts WHERE handout_name = ? AND user_id = ?", (handout_name, session['user_id'],)).fetchall()
 
@@ -261,8 +261,8 @@ def create_lesson():
         # VOCABULARY
         vocabulary_list = []
         with engine.connect() as conn:
-            vocabulary = conn.execute("SELECT word FROM vocabularies JOIN handouts WHERE handout_name LIKE ? AND user_id = ?", (handout_name, session['user_id'])).fetchall()          
-            vocabulary_count = conn.execute("SELECT COUNT(word) as count FROM vocabularies JOIN handouts WHERE handout_name LIKE ? AND user_id = ?", (handout_name, session['user_id'])).fetchall()
+            vocabulary = conn.execute("SELECT word FROM vocabularies JOIN handouts WHERE handout_name LIKE ? AND user_id = ? AND vocabularies.handout_id = ?", (handout_name, session['user_id'], handout_id)).fetchall()          
+            vocabulary_count = conn.execute("SELECT COUNT(word) as count FROM vocabularies JOIN handouts WHERE handout_name LIKE ? AND user_id = ? AND vocabularies.handout_id = ?", (handout_name, session['user_id'], handout_id)).fetchall()
             v_size = vocabulary_count[0]['count']
             for v in range(v_size): 
                 for linha in vocabulary[v]: 
