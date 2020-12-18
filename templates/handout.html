@@ -6,7 +6,14 @@
     <div class="text-center">
         <h1>Handout - {{ title_pag }}</h1>
     </div>
-    <a href="/edit/handout/{{ handout_id }}/">Edit Handout </a>
+    
+    <div class="d-flex justify-content-between mb-1">
+        <a href="/edit/handout/{{ handout_id }}/">Edit Handout </a>
+        
+        <form action="/pdf/generate/{{ handout_id }}" method="POST">
+            <button class="btn btn-info" type="submit">Download Handout</button>
+        </form>
+    </div>
     <!-- LESSONS -->
     <table class="table table-striped">
         <thead>
@@ -17,6 +24,12 @@
                 <th scope="col">Actions</th>
             </tr>
         </thead>
+        {% if get_flashed_messages() %}
+            <div class="alert alert-primary border text-center" role="alert">
+                {{ get_flashed_messages() | join(" ") }}
+            </div>
+        {% endif %}
+
         {% if size > 0 %}
         <tbody>
             {% for i in range(size) %}

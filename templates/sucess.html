@@ -3,27 +3,6 @@
 
 {% block container %}
 <div class="container">
-    {{ handout_name }}
-    {{ language }}
-
-    {% for i in range(count) %}
-        {{ lesson[i] }} 
-        {{ title[i] }}
-        {{ text[i] }}
-        {% for v in range(countvoc[i]) %}
-            <p>{{ word[i][v] }} - {{ type[i][v] }} - {{ gen[i][v] }} - {{ translate[i][v] }} </p>
-        {% endfor %}
-       
-
-        {{ exercise[i] }}
-        <h1>OUTRA PAGINA</h1>
-        {{ morphology[i] }}
-        {{ syntax[i] }}
-        {{ tips[i] }}
-
-        <h1>NEW PAGE</h1>
-
-    {% endfor %}
-
+    <h1>TEST, SUCESS!</h1>
 </div>
 {% endblock %}

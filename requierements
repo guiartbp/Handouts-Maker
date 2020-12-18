@@ -1,4 +1,0 @@
-pip install Flask
-pip install Flask-Session
-pip install SQLAlchemy
-pip install docx

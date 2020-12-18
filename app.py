@@ -1,5 +1,5 @@
 import string
-from flask import Flask, request, render_template, redirect, session, url_for
+from flask import Flask, request, render_template, redirect, session, url_for, send_file, flash
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
@@ -57,7 +57,6 @@ vocabulary_table = Table('vocabularies', metadata,
                    Column('type', String(20)),            
                    Column('gen', String(1)),
                    Column('translate', String(46)))   
-
 
 @app.route("/")
 def index():
@@ -491,137 +490,145 @@ def readability():
 
     return render_template('readability.html')
 
-@app.route("/pdf/generate/<int:handout_id>")
+@app.route("/pdf/generate/<int:handout_id>", methods=['GET', 'POST'])
 @login_required
 def generate_pdf(handout_id):
-    with engine.connect() as conn:
-        db_count =conn.execute('''SELECT COUNT(*) as count FROM handouts JOIN lessons
-                                WHERE handouts.user_id = ? AND handouts.handout_id = ?''',
-                                session['user_id'], handout_id).fetchall()
-        dados = conn.execute('''SELECT handout_name, language, lesson_num, title, text, exercise, morphology, syntax, tips   
-                                FROM handouts JOIN lessons 
-                                WHERE handouts.user_id = ? AND handouts.handout_id = ?''',
-                                session['user_id'], handout_id).fetchall()
-        handout_name=dados[0]['handout_name']
-        language = dados[0]['language']
-        count = db_count[0]['count']
-        print(f'count: {count}')
-        get_lesson = []
-        get_title = []
-        get_text = []
-        get_exercise = []
-        get_morphology = []
-        get_syntax = []
-        get_tips = []        
-        get_countvoc = []
-        get_word = [[]]
-        get_type = [[]]
-        get_gen = [[]]
-        get_translate = [[]]
+    try:
+        with engine.connect() as conn:
+        
+            db_count =conn.execute('''SELECT COUNT(*) as count 
+                                    FROM handouts JOIN lessons
+                                    WHERE handouts.user_id = ? AND handouts.handout_id = ? AND lessons.handout_id = ?''',
+                                    session['user_id'], handout_id, handout_id).fetchall()
+            dados = conn.execute('''SELECT handout_name, language, lesson_num, title, text, exercise, morphology, syntax, tips   
+                                    FROM handouts JOIN lessons 
+                                    WHERE handouts.user_id = ? AND handouts.handout_id = ? AND lessons.handout_id = ?''',
+                                    session['user_id'], handout_id, handout_id).fetchall()
+            handout_name=dados[0]['handout_name']
+            language = dados[0]['language']
+            count = db_count[0]['count']
+            print(f'count: {count}')
+            get_lesson = []
+            get_title = []
+            get_text = []
+            get_exercise = []
+            get_morphology = []
+            get_syntax = []
+            get_tips = []        
+            get_countvoc = []
+            get_word = [[]]
+            get_type = [[]]
+            get_gen = [[]]
+            get_translate = [[]]
 
-        # Open Document 
-        document = Document()
-        # First page
-        doc_title = document.add_heading(handout_name, 0)
-        doc_language = document.add_paragraph(language)
-        document.add_page_break()
+            # Open Document 
+            document = Document()
+            # First page
+            doc_title = document.add_heading(handout_name, 0)
+            doc_language = document.add_paragraph(language)
+            document.add_page_break()
 
-        for i in range(count):
-            get_lesson.append(dados[i]['lesson_num'])
-            get_title.append(dados[i]['title'])
-            get_text.append(dados[i]['text'])
-            get_exercise.append(dados[i]['exercise'])
-            get_morphology.append(dados[i]['morphology'])
-            get_syntax.append(dados[i]['syntax'])
-            get_tips.append(dados[i]['tips'])
-            
-            print(f'i:{i}')
+            for i in range(count):
+                get_lesson.append(dados[i]['lesson_num'])
+                get_title.append(dados[i]['title'])
+                get_text.append(dados[i]['text'])
+                get_exercise.append(dados[i]['exercise'])
+                get_morphology.append(dados[i]['morphology'])
+                get_syntax.append(dados[i]['syntax'])
+                get_tips.append(dados[i]['tips'])
+                
+                print(f'i:{i}')
 
-            vocabulary_db = conn.execute('''SELECT word, type, gen, translate 
-                                            FROM vocabularies JOIN handouts 
-                                            WHERE handouts.user_id = ? AND handouts.handout_id = ? AND lesson_id = ?
-                                            ORDER BY type''',
-                                            session['user_id'], handout_id, i+1).fetchall()
-            vocabulary_count = conn.execute('''SELECT COUNT(*) as count_voc
+                vocabulary_db = conn.execute('''SELECT word, type, gen, translate 
                                                 FROM vocabularies JOIN handouts 
                                                 WHERE handouts.user_id = ? AND handouts.handout_id = ? AND lesson_id = ?
                                                 ORDER BY type''',
                                                 session['user_id'], handout_id, i+1).fetchall()
-            get_countvoc.append(vocabulary_count[0]['count_voc'])   
-            count_voc = vocabulary_count[0]['count_voc']
-            print(f"get_countvoc: {get_word}")
-            print(f"vocabulary: {count_voc}")    
+                vocabulary_count = conn.execute('''SELECT COUNT(*) as count_voc
+                                                    FROM vocabularies JOIN handouts 
+                                                    WHERE handouts.user_id = ? AND handouts.handout_id = ? AND lesson_id = ?
+                                                    ORDER BY type''',
+                                                    session['user_id'], handout_id, i+1).fetchall()
+                get_countvoc.append(vocabulary_count[0]['count_voc'])   
+                count_voc = vocabulary_count[0]['count_voc']
+                print(f"get_countvoc: {get_word}")
+                print(f"vocabulary: {count_voc}")    
 
-            for v in range(count_voc):
+                for v in range(count_voc):
 
-                get_word[i].append(vocabulary_db[v]['word'])
-                get_type[i].append(vocabulary_db[v]['type'])
-                get_gen[i].append(vocabulary_db[v]['gen'])
-                get_translate[i].append(vocabulary_db[v]['translate'])
-                print(f'v: {v}')
-                word = vocabulary_db[v]['word']
-                print(f'word: {word}')
+                    get_word[i].append(vocabulary_db[v]['word'])
+                    get_type[i].append(vocabulary_db[v]['type'])
+                    get_gen[i].append(vocabulary_db[v]['gen'])
+                    get_translate[i].append(vocabulary_db[v]['translate'])
+                    print(f'v: {v}')
+                    word = vocabulary_db[v]['word']
+                    print(f'word: {word}')
+                
+                get_word.append([])
+                get_type.append([])
+                get_gen.append([])
+                get_translate.append([])
+
+        for d in range(count):
+            # Page of Lesson
+            document.add_heading(f"Lesson {get_lesson[d]}", level=1)        
+            document.add_heading(get_title[d], level=2)        
+            document.add_paragraph(get_text[d])
+
+            table = document.add_table(rows=1, cols=4)      
+            voc_cells = table.rows[0].cells  
+            voc_cells[0].text = 'Word'
+            voc_cells[1].text = 'Type'
+            voc_cells[2].text = 'Gen'            
+            voc_cells[3].text = 'Translate'
+            for voc_docs in range(get_countvoc[d]):
+                row_cells = table.add_row().cells
+                try: 
+                    row_cells[0].text = get_word[d][voc_docs]
+                except:
+                    row_cells[0].text = "None"
+                try:                 
+                    row_cells[1].text = get_type[d][voc_docs]
+                except:
+                    row_cells[1].text = "None"
+                try:                
+                    row_cells[2].text = get_gen[d][voc_docs]
+                except:
+                    row_cells[2].text = "None"
+                try:                 
+                    row_cells[3].text = get_translate[d][voc_docs]
+                except:
+                    row_cells[3].text = "None"
+
+                
+            document.add_heading('Exercises', level=2)
+            document.add_paragraph(get_exercise[d])    
             
-            get_word.append([])
-            get_type.append([])
-            get_gen.append([])
-            get_translate.append([])
+            document.add_page_break()
 
-    for d in range(count):
-        # Page of Lesson
-        document.add_heading(f"Lesson {get_lesson[d]}", level=1)        
-        document.add_heading(get_title[d], level=2)        
-        document.add_paragraph(get_text[d])
+            # Page of Grammar 
+            if len(get_morphology[d]) != 0:
+                document.add_heading('Morphology', level=2)
+                document.add_paragraph(get_morphology[d])  
+            if len(get_syntax[d]) != 0:
+                document.add_heading('Syntax', level=2)
+                document.add_paragraph(get_syntax[d])   
+            if len(get_tips[d]) != 0:
+                document.add_heading('Tips', level=2)
+                document.add_paragraph(get_tips[d])  
+            
+            document.add_page_break()
 
-        table = document.add_table(rows=1, cols=4)      
-        voc_cells = table.rows[0].cells  
-        voc_cells[0].text = 'Word'
-        voc_cells[1].text = 'Type'
-        voc_cells[2].text = 'Gen'            
-        voc_cells[3].text = 'Translate'
-        for voc_docs in range(get_countvoc[d]):
-            row_cells = table.add_row().cells
-            try: 
-                row_cells[0].text = get_word[d][voc_docs]
-            except:
-                row_cells[0].text = "None"
-            try:                 
-                row_cells[1].text = get_type[d][voc_docs]
-            except:
-                row_cells[1].text = "None"
-            try:                
-                row_cells[2].text = get_gen[d][voc_docs]
-            except:
-                row_cells[2].text = "None"
-            try:                 
-                row_cells[3].text = get_translate[d][voc_docs]
-            except:
-                row_cells[3].text = "None"
-
-               
-        document.add_heading('Exercises', level=2)
-        document.add_paragraph(get_exercise[d])    
+        document.save(f'{handout_name}.docx')
+        arquivo = f'{handout_name}.docx'
         
-        document.add_page_break()
-
-        # Page of Grammar 
-        if len(get_morphology[d]) != 0:
-            document.add_heading('Morphology', level=2)
-            document.add_paragraph(get_morphology[d])  
-        if len(get_syntax[d]) != 0:
-            document.add_heading('Syntax', level=2)
-            document.add_paragraph(get_syntax[d])   
-        if len(get_tips[d]) != 0:
-            document.add_heading('Tips', level=2)
-            document.add_paragraph(get_tips[d])  
-        
-        document.add_page_break()
-
-    document.save(f'{handout_name}.docx')
-
-    return render_template('sucess.html', countvoc=get_countvoc, count_voc=count_voc, count=count, handout_name=handout_name, language=language, lesson=get_lesson, title=get_title, text=get_text, word=get_word, type=get_type, gen=get_gen, translate=get_translate, exercise=get_exercise, morphology=get_morphology, syntax=get_syntax, tips=get_tips)
+        if request.method == 'POST':
+            return send_file(arquivo,as_attachment=True)
+    except:
+        flash('Your handout is empty. Take new lessons!')
+        return redirect(f'/handout/{handout_id}')
+    return redirect ('/myhandout')
 
 if __name__ == "__main__":
-
     metadata.create_all()
     app.run(port=8080, host='127.0.0.1', debug=True, threaded=True)

@@ -9,6 +9,10 @@
         <h1 class="display-4">My Handouts</h1>
         <p class="lead">All your handouts are here. Divided by language and difficulty. Click on "Go to Handout" in the book you want to view or edit the lessons and generate pdf</p>
     </div>
+    {% if count == 0%}
+    <h3>You still don't have handouts. <a href="/newhandout">Click here and create now!</a></h3>
+    {% endif%}
+
     {% for n in range(count) %}
         {% if n == 0 or n % 3 == 0 %}
         <div class="card-deck mb-3 text-center">

@@ -1,0 +1,16 @@
+# This file is used by pip to install required python packages
+# Usage: pip install -r requirements.txt
+# pip install Flask
+# pip install Flask-Session
+# pip install SQLAlchemy
+# pip install python-docx
+
+# Python --version == 3.9.0
+# Flask Framework
+Flask==1.1.2
+Werkzeug==1.0.1
+
+# Flask Packages
+Flask-Session==0.3.2
+SQLAlchemy==1.3.21
+python-docx==0.8.10
